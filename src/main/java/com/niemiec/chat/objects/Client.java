@@ -1,6 +1,6 @@
 package com.niemiec.chat.objects;
 
-import com.niemiec.battleship.game.objects.Player;
+import com.niemiec.battleship.manager.BattleshipGame;
 import com.niemiec.chat.connection.Connection;
 import com.niemiec.chat.controllers.ChatController;
 import com.niemiec.chat.controllers.GetNickController;
@@ -68,14 +68,6 @@ public class Client {
 		connection.sendTheObject(messagesManagement.sendAcceptTheBattleshipGame(isAccept, opponentPlayerNick));
 	}
 
-	public void sendShipsAdded(String opponentPlayerNick, Player player) {
-		connection.sendTheObject(messagesManagement.sendShipsAdded(opponentPlayerNick, player));
-	}
-
-	public boolean checkIfTheButtonWasUsed(String opponentPlayerNick, ActionEvent event) {
-		return messagesManagement.checkIfTheButtonWasUsed(opponentPlayerNick, event);
-	}
-
 	public boolean checkIfBattleshipGameHasBeenCompleted(String opponentPlayerNick) {
 		return messagesManagement.checkIfBattleshipGameHasBeenCompleted(opponentPlayerNick);
 	}
@@ -86,6 +78,28 @@ public class Client {
 
 	public void closeBattleshipMainScreen(String opponentPlayerNick) {
 		messagesManagement.closeBattleshipMainScreen(opponentPlayerNick);
+	}
+
+	public void addShips(String opponentPlayerNick, ActionEvent event) {
+		if (messagesManagement.addShips(opponentPlayerNick, event)) {
+			connection.sendTheObject(messagesManagement.sendShipsAdded(opponentPlayerNick));
+		}
+	}
+
+	public void addShipsAutomatically(String opponentPlayerNick) {
+		if (messagesManagement.addShipsAutomatically(opponentPlayerNick)) {
+			connection.sendTheObject(messagesManagement.sendShipsAdded(opponentPlayerNick));
+		}
+	}
+
+	public void shot(String opponentPlayerNick, ActionEvent event) {
+		if (!messagesManagement.checkIfTheButtonWasUsed(opponentPlayerNick, event)) {
+			sendBattleshipGame(opponentPlayerNick, event);
+		}
+	}
+
+	public void sendRejectionGameProspalWhenBattleshipGameNotDelete(BattleshipGame battleshipGame) {
+		connection.sendTheObject(messagesManagement.sendRejectionGameProspalWhenBattleshipGameNotDelete(battleshipGame));
 	}
 
 }

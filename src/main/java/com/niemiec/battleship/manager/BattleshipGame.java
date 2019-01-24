@@ -12,49 +12,53 @@ public class BattleshipGame implements Serializable {
 	public static final int ACCEPTING_THE_GAME = 12; // też tylko do serwera, poten on wysyła już start game
 	public static final int ADD_SHIPS = 13;
 	public static final int SHIPS_ADDED = 14; //tej informacji będzie potrzebował tylko serwer
-	public static final int START_THE_GAME = 15;
+	public static final int PLAY_THE_GAME = 15;
 	public static final int END_GAME = 16;
+	public static final int GIVE_UP = 17;
 	
-	private String invitingPlayerNick;
-	private String opponentPlayerNick;
-	
-	private Player player = null;
+	private Player player;
 	private String nickWhoseTourn;
-
-	private Player invitingPlayer;
-	private Player opponentPlayer;
-	
+	private String opponentPlayerNick;
 	private Coordinates shotCoordinates;
-	
 	private int gameStatus;
-	private int index; // numer Battleship w serwerze
-	private String winner;
+	private int gameIndex; // numer Battleship w serwerze
+	private String winnerNick;
 	
-	public BattleshipGame(String invitingPlayerNick, String opponentPlayerNick) {
-		this.invitingPlayerNick = invitingPlayerNick;
-		this.opponentPlayerNick = opponentPlayerNick;
+	public BattleshipGame() {
+		player = null;
 		gameStatus = GAME_PROPOSAL;
+	}
+
+	public Player getPlayer() {
+		return player;
+	}
+
+	public void setPlayer(Player player) {
+		this.player = player;
+	}
+
+	public String getNickWhoseTourn() {
+		return nickWhoseTourn;
+	}
+
+	public void setNickWhoseTourn(String nickWhoseTourn) {
+		this.nickWhoseTourn = nickWhoseTourn;
 	}
 
 	public String getOpponentPlayerNick() {
 		return opponentPlayerNick;
-	}
-	
-	public String getInvitingPlayerNick() {
-		return invitingPlayerNick;
-	}
-	
-	public void setInvitingPlayerNick(String invitingPlayerNick) {
-		this.invitingPlayerNick = invitingPlayerNick;
 	}
 
 	public void setOpponentPlayerNick(String opponentPlayerNick) {
 		this.opponentPlayerNick = opponentPlayerNick;
 	}
 
-	public void delete() {
-		// TODO Auto-generated method stub
-		
+	public Coordinates getShotCoordinates() {
+		return shotCoordinates;
+	}
+
+	public void setShotCoordinates(Coordinates shotCoordinates) {
+		this.shotCoordinates = shotCoordinates;
 	}
 
 	public int getGameStatus() {
@@ -64,70 +68,20 @@ public class BattleshipGame implements Serializable {
 	public void setGameStatus(int gameStatus) {
 		this.gameStatus = gameStatus;
 	}
-	
-	public void setGameIndex(int index) {
-		this.index = index;
-	}
-	
+
 	public int getGameIndex() {
-		return index;
+		return gameIndex;
 	}
 
-	public void createBattleshipGameForOpponent() {
-		String a = new String(invitingPlayerNick);
-		invitingPlayerNick =  new String(opponentPlayerNick);
-		opponentPlayerNick = a;
-		
-		Player p = invitingPlayer;
-		invitingPlayer = opponentPlayer;
-		opponentPlayer = p;
+	public void setGameIndex(int gameIndex) {
+		this.gameIndex = gameIndex;
 	}
 
-	public Player getInvitingPlayer() {
-		return invitingPlayer;
-	}
-
-	public void setInvitingPlayer(Player invitingPlayer) {
-		this.invitingPlayer = invitingPlayer;
-	}
-
-	public Player getOpponentPlayer() {
-		return opponentPlayer;
-	}
-
-	public void setOpponentPlayer(Player opponentPlayer) {
-		this.opponentPlayer = opponentPlayer;
-	}
-	
-	public void setNickWhoseTourn(String nickWhoseTourn) {
-		this.nickWhoseTourn = nickWhoseTourn;
-	}
-	
-	public String getNickWhoseTourn() {
-		return nickWhoseTourn;
-	}
-
-	public void setPlayer(Player player) {
-		this.player = player;
-	}
-	
-	public Player getPlayer() {
-		return player;
-	}
-
-	public void setCoordinates(Coordinates coordinates) {
-		this.shotCoordinates = coordinates;
-	}
-	
-	public Coordinates getCoordinates() {
-		return shotCoordinates;
+	public String getWinnerNick() {
+		return winnerNick;
 	}
 
 	public void setWinnerNick(String winner) {
-		this.winner = winner;
-	}
-
-	public String getWinner() {
-		return winner;
+		this.winnerNick = winner;
 	}
 }

@@ -1,18 +1,7 @@
 package com.niemiec.battleship.controllers;
 
-import com.niemiec.battleship.game.logic.AddShips;
-import com.niemiec.battleship.game.objects.Player;
-import com.niemiec.battleship.game.objects.PlayerImpl;
 import com.niemiec.battleship.logic.BattleshipManagement;
 import com.niemiec.chat.objects.Client;
-
-import javafx.application.Platform;
-
-//import com.niemiec.logic.BorderManagement;
-//import com.niemiec.logic.Exit;
-//import com.niemiec.logic.GameLogic;
-//import com.niemiec.logic.Open;
-
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -642,18 +631,6 @@ public class MainScreenController {
 
 	private Client client;
 	private String opponentPlayerNick;
-	private String nick;
-
-	private AddShips addShips;
-	private Player player;
-//	private GameLogic gameLogic;
-//	private Exit exit;
-
-	private BattleshipManagement battleshipManagement;
-
-	public void setNick(String nick) {
-		this.nick = nick;
-	}
 
 	@FXML
 	void initialize() {
@@ -663,28 +640,14 @@ public class MainScreenController {
 
 	}
 
-	public void initializeDataToAddedShips() {
-		addShips = new AddShips();
-		player = new PlayerImpl(Player.SECOND_PLAYER, nick);
-		addShips.addOneRealPlayer(player);
-		addShips.addBorderManagement(battleshipManagement.getBorderManagement(opponentPlayerNick));
-	}
-
 	@FXML
 	void myButtonAction(ActionEvent event) {
-		if (addShips.addShipsManually(Player.SECOND_PLAYER, event)) {
-			client.sendShipsAdded(opponentPlayerNick, player);
-			Platform.runLater(() -> {
-				battleshipManagement.getBorderManagement(opponentPlayerNick).setBordersToEndGame();
-			});
-		}
+		client.addShips(opponentPlayerNick, event);
 	}
 
 	@FXML
 	void opponentButtonAction(ActionEvent event) {
-		if (!client.checkIfTheButtonWasUsed(opponentPlayerNick, event)) {
-			client.sendBattleshipGame(opponentPlayerNick, event);
-		}
+		client.shot(opponentPlayerNick, event);
 	}
 
 	@FXML
@@ -697,12 +660,7 @@ public class MainScreenController {
 
 	@FXML
 	void setAutomaticallySpacingOfShips() {
-		if (addShips.addShipsAutomatically(Player.SECOND_PLAYER)) {
-			client.sendShipsAdded(opponentPlayerNick, player);
-			Platform.runLater(() -> {
-				battleshipManagement.getBorderManagement(opponentPlayerNick).setBordersToEndGame();
-			});
-		}
+		client.addShipsAutomatically(opponentPlayerNick);
 	}
 
 	@FXML
@@ -718,8 +676,8 @@ public class MainScreenController {
 		this.opponentPlayerNick = opponentPlayerNick;
 	}
 
+	// TODO do poprawy, bordery mają być stąd pobierane przez gettery
 	public void setBattleshipManagement(BattleshipManagement battleshipManagement) {
-		this.battleshipManagement = battleshipManagement;
 		battleshipManagement.setBordersToBorderManagement(myBorder, opponentBorder, opponentPlayerNick);
 	}
 

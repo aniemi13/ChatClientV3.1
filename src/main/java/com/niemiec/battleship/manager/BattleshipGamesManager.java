@@ -3,6 +3,7 @@ package com.niemiec.battleship.manager;
 import java.util.ArrayList;
 
 import com.niemiec.battleship.controllers.MainScreenController;
+import com.niemiec.battleship.game.logic.AddShips;
 import com.niemiec.battleship.game.logic.BorderManagement;
 import com.niemiec.battleship.view.BattleshipView;
 
@@ -12,6 +13,7 @@ public class BattleshipGamesManager {
 	private ArrayList<BattleshipView> battleshipViews;
 	private ArrayList<MainScreenController> mainScreenControllers;
 	private ArrayList<BorderManagement> borderManagements;
+	private ArrayList<AddShips> addShips;
 	
 	public BattleshipGamesManager() {
 		this.opponentPlayers = new ArrayList<>();
@@ -19,6 +21,7 @@ public class BattleshipGamesManager {
 		this.battleshipViews = new ArrayList<>();
 		this.mainScreenControllers = new ArrayList<>();
 		this.borderManagements = new ArrayList<>();
+		this.addShips = new ArrayList<>();
 	}
 	
 
@@ -27,7 +30,14 @@ public class BattleshipGamesManager {
 		battleshipGames.add(battleshipGame);
 		battleshipViews.add(battleshipView);
 		mainScreenControllers.add(battleshipView.getMainScreenController());
-		borderManagements.add(new BorderManagement());
+		
+		BorderManagement borderManagement = new BorderManagement();
+		borderManagements.add(borderManagement);
+		
+		AddShips aS = new AddShips();
+		aS.addBorderManagement(borderManagement);
+		addShips.add(aS);
+		
 	}
 	
 	public BattleshipGame getBattleshipGame(String opponentPlayerNick) {
@@ -37,6 +47,11 @@ public class BattleshipGamesManager {
 			}
 		}
 		return null;
+	}
+	
+	public BattleshipGame getBattleshipGame(BattleshipGame battleshipGame) {
+		return getBattleshipGame(battleshipGame.getOpponentPlayerNick());
+		
 	}
 
 	public BattleshipView getBattleshipView(String opponentPlayerNick) {
@@ -48,6 +63,11 @@ public class BattleshipGamesManager {
 		return null;
 	}
 	
+	public BattleshipView getBattleshipView(BattleshipGame battleshipGame) {
+		return getBattleshipView(battleshipGame.getOpponentPlayerNick());
+		
+	}
+	
 	public MainScreenController getMainScreenController(String opponentPlayerNick) {
 		for (int i = 0; i < opponentPlayers.size(); i++) {
 			if (opponentPlayers.get(i).equals(opponentPlayerNick)) {
@@ -55,6 +75,11 @@ public class BattleshipGamesManager {
 			}
 		}
 		return null;
+	}
+	
+	public MainScreenController getMainScreenController(BattleshipGame battleshipGame) {
+		return getMainScreenController(battleshipGame.getOpponentPlayerNick());
+		
 	}
 	
 	public BorderManagement getBorderManagement(String opponentPlayerNick) {
@@ -87,12 +112,12 @@ public class BattleshipGamesManager {
 	public void deleteBattleshipGame(String opponentPlayerNick) {
 		for (int i = 0; i < opponentPlayers.size(); i++) {
 			if (opponentPlayers.get(i).equals(opponentPlayerNick)) {
-				battleshipGames.get(i).delete();
 				battleshipGames.remove(i);
 				battleshipViews.remove(i);
 				mainScreenControllers.remove(i);
 				opponentPlayers.remove(i);
 				borderManagements.remove(i);
+				addShips.remove(i);
 				return;
 			}
 		}
@@ -106,6 +131,19 @@ public class BattleshipGamesManager {
 				return;
 			}
 		}
+	}
+
+	public AddShips getAddShip(String opponentPlayerNick) {
+		for (int i = 0; i < opponentPlayers.size(); i++) {
+			if (opponentPlayers.get(i).equals(opponentPlayerNick)) {
+				return addShips.get(i);
+			}
+		}
+		return null;
+	}
+	
+	public AddShips getAddShip(BattleshipGame battleshipGame) {
+		return getAddShip(battleshipGame.getOpponentPlayerNick());
 	}
 
 

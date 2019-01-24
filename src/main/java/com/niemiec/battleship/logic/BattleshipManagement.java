@@ -1,10 +1,12 @@
 package com.niemiec.battleship.logic;
 
 import com.niemiec.battleship.game.data.check.CheckData;
+import com.niemiec.battleship.game.logic.AddShips;
 import com.niemiec.battleship.game.logic.BorderManagement;
 import com.niemiec.battleship.game.objects.Board;
 import com.niemiec.battleship.game.objects.Coordinates;
 import com.niemiec.battleship.game.objects.Player;
+import com.niemiec.battleship.game.objects.PlayerImpl;
 import com.niemiec.battleship.manager.BattleshipGame;
 import com.niemiec.battleship.manager.BattleshipGamesManager;
 import com.niemiec.battleship.view.BattleshipView;
@@ -36,8 +38,8 @@ public class BattleshipManagement {
 		case BattleshipGame.ADD_SHIPS:
 			receiveAddShips(battleshipGame);
 			break;
-		case BattleshipGame.START_THE_GAME:
-			receiveStartTheGame(battleshipGame);
+		case BattleshipGame.PLAY_THE_GAME:
+			receivePlayTheGame(battleshipGame);
 			break;
 		case BattleshipGame.END_GAME:
 			receiveEndGame(battleshipGame);
@@ -46,22 +48,27 @@ public class BattleshipManagement {
 	}
 
 	private void receiveEndGame(BattleshipGame battleshipGame) {
-		System.out.println("Jestem graczem " + nick + ", a wygrał gracz: " + battleshipGame.getWinner());
 		updateBorder(battleshipGame);
 		battleshipGamesManager.updateBattleshipGame(battleshipGame);
 		battleshipGamesManager.getBorderManagement(battleshipGame).setBordersToEndGame();
-		BattleshipView battleshipView = battleshipGamesManager
-				.getBattleshipView(battleshipGame.getOpponentPlayerNick());
-		battleshipView.showEndGameInformationAndAcceptanceWindow("Wygrywa gracz: " + battleshipGame.getWinner());
+		BattleshipView battleshipView = battleshipGamesManager.getBattleshipView(battleshipGame);
+		battleshipView.showEndGameInformationAndAcceptanceWindow("Wygrywa gracz: " + battleshipGame.getWinnerNick());
 	}
 
 	private void receiveGameProposal(BattleshipGame battleshipGame) {
-		String nick = battleshipGame.getInvitingPlayerNick();
 		String opponentPlayerNick = battleshipGame.getOpponentPlayerNick();
-		deleteBattleshipGameIfExsistInformationController(opponentPlayerNick);
-		BattleshipView battleshipView = new BattleshipView(nick, opponentPlayerNick, client, this);
-		battleshipGamesManager.addBattleshipGame(battleshipGame, battleshipView);
-		battleshipView.showAcceptanceWindow();
+		if (checkIfTheGameNotExist(battleshipGame)) {
+			deleteBattleshipGameIfExsistInformationController(opponentPlayerNick);
+			BattleshipView battleshipView = new BattleshipView(opponentPlayerNick, client, this);
+			battleshipGamesManager.addBattleshipGame(battleshipGame, battleshipView);
+			battleshipView.showAcceptanceWindow();
+		} else {
+			client.sendRejectionGameProspalWhenBattleshipGameNotDelete(battleshipGame);
+		}
+	}
+
+	private boolean checkIfTheGameNotExist(BattleshipGame battleshipGame) {
+		return battleshipGamesManager.getBattleshipGame(battleshipGame) == null;
 	}
 
 	private void deleteBattleshipGameIfExsistInformationController(String opponentPlayerNick) {
@@ -73,25 +80,31 @@ public class BattleshipManagement {
 	}
 
 	private void receiveRejectionGameProposal(BattleshipGame battleshipGame) {
-		String opponentPlayerNick = battleshipGame.getOpponentPlayerNick();
-		BattleshipView battleshipView = battleshipGamesManager.getBattleshipView(opponentPlayerNick);
+		BattleshipView battleshipView = battleshipGamesManager.getBattleshipView(battleshipGame);
 		battleshipView.closeWaitingWindow();
-		battleshipView.showInformationAndAcceptanceWindow("Użytkownik " + opponentPlayerNick + " nie zaakceptował gry");
+		battleshipView.showInformationAndAcceptanceWindow(
+				"Użytkownik " + battleshipGame.getOpponentPlayerNick() + " nie zaakceptował gry");
 	}
 
 	private void receiveAddShips(BattleshipGame battleshipGame) {
-		String opponentPlayerNick = battleshipGame.getOpponentPlayerNick();
-		BattleshipView battleshipView = battleshipGamesManager.getBattleshipView(opponentPlayerNick);
+		BattleshipView battleshipView = battleshipGamesManager.getBattleshipView(battleshipGame);
 		battleshipGamesManager.updateBattleshipGame(battleshipGame);
-		if (battleshipGamesManager.getBattleshipView(opponentPlayerNick).getWaitingWindowController() != null)
+		if (battleshipView.getWaitingWindowController() != null) {
 			battleshipView.closeWaitingWindow();
+		}
+		updateAddShips(battleshipGame);
 		battleshipView.showBattleshipWindow();
 		Platform.runLater(() -> {
 			battleshipGamesManager.getBorderManagement(battleshipGame).startNewGameWithVirtualPlayer();
 		});
 	}
 
-	private void receiveStartTheGame(BattleshipGame battleshipGame) {
+	private void updateAddShips(BattleshipGame battleshipGame) {
+		AddShips addShips = battleshipGamesManager.getAddShip(battleshipGame);
+		addShips.addOneRealPlayer(battleshipGame.getPlayer());
+	}
+
+	private void receivePlayTheGame(BattleshipGame battleshipGame) {
 		updateBorder(battleshipGame);
 		battleshipGamesManager.updateBattleshipGame(battleshipGame);
 		if (battleshipGame.getNickWhoseTourn().equals(nick)) {
@@ -110,8 +123,11 @@ public class BattleshipManagement {
 	}
 
 	public Object playBattleship(String nick, String opponentPlayerNick) {
-		BattleshipGame battleshipGame = new BattleshipGame(nick, opponentPlayerNick);
-		BattleshipView battleshipView = new BattleshipView(nick, opponentPlayerNick, client, this);
+		BattleshipGame battleshipGame = new BattleshipGame();
+		battleshipGame.setPlayer(new PlayerImpl(Player.SECOND_PLAYER, nick));
+		battleshipGame.setOpponentPlayerNick(opponentPlayerNick);
+		BattleshipView battleshipView = new BattleshipView(opponentPlayerNick, client, this);
+
 		battleshipGamesManager.addBattleshipGame(battleshipGame, battleshipView);
 		battleshipView.showWaitingWindow("Oczekiwanie na akcpetację użytkownika " + opponentPlayerNick);
 		return battleshipGame;
@@ -120,7 +136,7 @@ public class BattleshipManagement {
 	public Object sendBattleshipGame(String opponentPlayerNick, ActionEvent event) {
 		BattleshipGame battleshipGame = battleshipGamesManager.getBattleshipGame(opponentPlayerNick);
 		Coordinates coordinates = CheckData.getCoordinatesFromButton((Button) event.getSource());
-		battleshipGame.setCoordinates(coordinates);
+		battleshipGame.setShotCoordinates(coordinates);
 		getBorderManagement(opponentPlayerNick).setBordersToEndGame();
 
 		return battleshipGame;
@@ -153,10 +169,19 @@ public class BattleshipManagement {
 		deleteBattleshipGame(opponentPlayerNick);
 	}
 
-	public Object sendShipsAdded(String opponentPlayerNick, Player player) {
+	public Object sendRejectionGameProspalWhenBattleshipGameNotDelete(BattleshipGame battleshipGame) {
+		battleshipGame.setGameStatus(BattleshipGame.REJECTION_GAME_PROPOSAL);
+		return battleshipGame;
+	}
+
+	public Object sendShipsAdded(String opponentPlayerNick) {
 		BattleshipGame battleshipGame = battleshipGamesManager.getBattleshipGame(opponentPlayerNick);
 		battleshipGame.setGameStatus(BattleshipGame.SHIPS_ADDED);
-		battleshipGame.setInvitingPlayer(player);
+
+		Player player = battleshipGamesManager.getAddShip(battleshipGame).getPlayer(Player.SECOND_PLAYER);
+		battleshipGame.setPlayer(player);
+
+		battleshipGamesManager.getBorderManagement(battleshipGame).setBordersToEndGame();
 
 		return battleshipGame;
 	}
@@ -207,5 +232,15 @@ public class BattleshipManagement {
 	public void closeBattleshipMainScreen(String opponentPlayerNick) {
 		// TODO Auto-generated method stub
 
+	}
+
+	public boolean addShips(String opponentPlayerNick, ActionEvent event) {
+		AddShips addShips = battleshipGamesManager.getAddShip(opponentPlayerNick);
+		return addShips.addShipsManually(Player.SECOND_PLAYER, event);
+	}
+
+	public boolean addShipsAutomatically(String opponentPlayerNick) {
+		AddShips addShips = battleshipGamesManager.getAddShip(opponentPlayerNick);
+		return addShips.addShipsAutomatically(Player.SECOND_PLAYER);
 	}
 }

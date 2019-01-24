@@ -15,7 +15,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class BattleshipView {
-	private String nick;
 	private String opponentPlayerNick;
 	private Client client;
 	private BattleshipManagement battleshipManagement;
@@ -45,8 +44,7 @@ public class BattleshipView {
 	private VBox vBoxEndGameInformationAndAcceptanceWindow;
 	private Stage stageEndGameInformationAndAcceptanceWindow;
 
-	public BattleshipView(String nick, String opponentNick, Client client, BattleshipManagement battleshipManagement) {
-		this.nick = nick;
+	public BattleshipView(String opponentNick, Client client, BattleshipManagement battleshipManagement) {
 		this.opponentPlayerNick = opponentNick;
 		this.client = client;
 		this.battleshipManagement = battleshipManagement;
@@ -64,9 +62,7 @@ public class BattleshipView {
 		mainScreenController = mainScreenLoader.getController();
 		mainScreenController.setClient(this.client);
 		mainScreenController.setOpponentPlayerNick(opponentPlayerNick);
-		mainScreenController.setNick(nick);
 		mainScreenController.setBattleshipManagement(battleshipManagement);
-		mainScreenController.initializeDataToAddedShips();
 	}
 
 	public void showBattleshipWindow() {

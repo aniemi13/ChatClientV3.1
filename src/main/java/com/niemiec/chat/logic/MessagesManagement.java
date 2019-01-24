@@ -1,6 +1,5 @@
 package com.niemiec.chat.logic;
 
-import com.niemiec.battleship.game.objects.Player;
 import com.niemiec.battleship.logic.BattleshipManagement;
 import com.niemiec.battleship.manager.BattleshipGame;
 import com.niemiec.chat.controllers.ChatController;
@@ -177,8 +176,8 @@ public class MessagesManagement {
 		return battleshipManagement.whetherTheBattleshipGameExists(actualInterlocutor);
 	}
 
-	public Object sendShipsAdded(String opponentPlayerNick, Player player) {
-		return battleshipManagement.sendShipsAdded(opponentPlayerNick, player);
+	public Object sendShipsAdded(String opponentPlayerNick) {
+		return battleshipManagement.sendShipsAdded(opponentPlayerNick);
 	}
 
 	public boolean checkIfTheButtonWasUsed(String opponentPlayerNick, ActionEvent event) {
@@ -195,5 +194,17 @@ public class MessagesManagement {
 
 	public void closeBattleshipMainScreen(String opponentPlayerNick) {
 		battleshipManagement.closeBattleshipMainScreen(opponentPlayerNick);
+	}
+
+	public boolean addShips(String opponentPlayerNick, ActionEvent event) {
+		return battleshipManagement.addShips(opponentPlayerNick, event);
+	}
+
+	public boolean addShipsAutomatically(String opponentPlayerNick) {
+		return battleshipManagement.addShipsAutomatically(opponentPlayerNick);
+	}
+
+	public Object sendRejectionGameProspalWhenBattleshipGameNotDelete(BattleshipGame battleshipGame) {
+		return battleshipManagement.sendRejectionGameProspalWhenBattleshipGameNotDelete(battleshipGame);
 	}
 }
