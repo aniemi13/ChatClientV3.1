@@ -229,11 +229,6 @@ public class BattleshipManagement {
 		return battleshipGame;
 	}
 
-	public void closeBattleshipMainScreen(String opponentPlayerNick) {
-		// TODO Auto-generated method stub
-
-	}
-
 	public boolean addShips(String opponentPlayerNick, ActionEvent event) {
 		AddShips addShips = battleshipGamesManager.getAddShip(opponentPlayerNick);
 		return addShips.addShipsManually(Player.SECOND_PLAYER, event);
@@ -242,5 +237,19 @@ public class BattleshipManagement {
 	public boolean addShipsAutomatically(String opponentPlayerNick) {
 		AddShips addShips = battleshipGamesManager.getAddShip(opponentPlayerNick);
 		return addShips.addShipsAutomatically(Player.SECOND_PLAYER);
+	}
+
+	public void closeBattleshipGame(String opponentPlayerNick) {
+		BattleshipView battleshipView = battleshipGamesManager.getBattleshipView(opponentPlayerNick);
+		battleshipView.closeBattleshipWindow();
+		battleshipGamesManager.deleteBattleshipGame(opponentPlayerNick);
+	}
+
+	public void closeBattleshipGames() {
+		for (int i = 0 ; i < battleshipGamesManager.getNumberOfBattleshipGames(); i++) {
+			String opponentPlayerNick = battleshipGamesManager.getFirstOpponentPlayer();
+			client.closeBattleshipGame(opponentPlayerNick);
+			battleshipGamesManager.deleteBattleshipGame(opponentPlayerNick);
+		}
 	}
 }

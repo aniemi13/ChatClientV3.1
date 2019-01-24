@@ -166,6 +166,7 @@ public class ChatController {
 	
 	@FXML
 	public void exit() {
+		client.closeBattleshipGames();
 		client.exit();
 		System.exit(-1);
 	}

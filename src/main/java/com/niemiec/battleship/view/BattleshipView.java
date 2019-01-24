@@ -79,10 +79,6 @@ public class BattleshipView {
 		});
 	}
 
-	public void showAddedShipsBattleshipWindow() {
-
-	}
-
 	public void closeBattleshipWindow() {
 		Platform.runLater(() -> {
 			stageMainScreen.close();

@@ -166,4 +166,12 @@ public class BattleshipGamesManager {
 		}
 		return false;
 	}
+	
+	public String getFirstOpponentPlayer() {
+		return opponentPlayers.get(0);
+	}
+	
+	public int getNumberOfBattleshipGames() {
+		return opponentPlayers.size();
+	}
 }

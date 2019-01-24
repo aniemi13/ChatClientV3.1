@@ -68,18 +68,6 @@ public class Client {
 		connection.sendTheObject(messagesManagement.sendAcceptTheBattleshipGame(isAccept, opponentPlayerNick));
 	}
 
-	public boolean checkIfBattleshipGameHasBeenCompleted(String opponentPlayerNick) {
-		return messagesManagement.checkIfBattleshipGameHasBeenCompleted(opponentPlayerNick);
-	}
-
-	public void sendResignationFromTheGame(String opponentPlayerNick) {
-		connection.sendTheObject(messagesManagement.sendResignationFromTheGame(opponentPlayerNick));
-	}
-
-	public void closeBattleshipMainScreen(String opponentPlayerNick) {
-		messagesManagement.closeBattleshipMainScreen(opponentPlayerNick);
-	}
-
 	public void addShips(String opponentPlayerNick, ActionEvent event) {
 		if (messagesManagement.addShips(opponentPlayerNick, event)) {
 			connection.sendTheObject(messagesManagement.sendShipsAdded(opponentPlayerNick));
@@ -100,6 +88,17 @@ public class Client {
 
 	public void sendRejectionGameProspalWhenBattleshipGameNotDelete(BattleshipGame battleshipGame) {
 		connection.sendTheObject(messagesManagement.sendRejectionGameProspalWhenBattleshipGameNotDelete(battleshipGame));
+	}
+
+	public void closeBattleshipGame(String opponentPlayerNick) {
+		if (!messagesManagement.checkIfBattleshipGameHasBeenCompleted(opponentPlayerNick)) {
+			connection.sendTheObject(messagesManagement.sendResignationFromTheGame(opponentPlayerNick));
+		}
+		messagesManagement.closeBattleshipGame(opponentPlayerNick);
+	}
+
+	public void closeBattleshipGames() {
+		messagesManagement.closeBattleshipGames();
 	}
 
 }

@@ -652,10 +652,11 @@ public class MainScreenController {
 
 	@FXML
 	public void close() {
-		if (!client.checkIfBattleshipGameHasBeenCompleted(opponentPlayerNick)) {
-			client.sendResignationFromTheGame(opponentPlayerNick);
-		}
-		client.closeBattleshipMainScreen(opponentPlayerNick);
+		client.closeBattleshipGame(opponentPlayerNick);
+//		if (!client.checkIfBattleshipGameHasBeenCompleted(opponentPlayerNick)) {
+//			client.sendResignationFromTheGame(opponentPlayerNick);
+//		}
+//		client.closeBattleshipMainScreen(opponentPlayerNick);
 	}
 
 	@FXML

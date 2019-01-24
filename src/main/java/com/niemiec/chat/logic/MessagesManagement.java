@@ -192,10 +192,6 @@ public class MessagesManagement {
 		return battleshipManagement.sendResignationFromTheGame(opponentPlayerNick);
 	}
 
-	public void closeBattleshipMainScreen(String opponentPlayerNick) {
-		battleshipManagement.closeBattleshipMainScreen(opponentPlayerNick);
-	}
-
 	public boolean addShips(String opponentPlayerNick, ActionEvent event) {
 		return battleshipManagement.addShips(opponentPlayerNick, event);
 	}
@@ -206,5 +202,13 @@ public class MessagesManagement {
 
 	public Object sendRejectionGameProspalWhenBattleshipGameNotDelete(BattleshipGame battleshipGame) {
 		return battleshipManagement.sendRejectionGameProspalWhenBattleshipGameNotDelete(battleshipGame);
+	}
+
+	public void closeBattleshipGames() {
+		battleshipManagement.closeBattleshipGames();
+	}
+
+	public void closeBattleshipGame(String opponentPlayerNick) {
+		battleshipManagement.closeBattleshipGame(opponentPlayerNick);
 	}
 }
