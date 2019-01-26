@@ -12,113 +12,38 @@ import com.niemiec.battleship.manager.BattleshipGamesManager;
 import com.niemiec.battleship.view.BattleshipView;
 import com.niemiec.chat.objects.Client;
 
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 
 public class BattleshipManagement {
 	private Client client;
-	private String nick;
 	private BattleshipGamesManager battleshipGamesManager;
+	private ProcessingIncomingBattleshipGameMessage processingIncomingBattleshipGameMessage;
 
 	public BattleshipManagement(Client client) {
 		this.client = client;
 		this.battleshipGamesManager = new BattleshipGamesManager();
+		this.processingIncomingBattleshipGameMessage = new ProcessingIncomingBattleshipGameMessage(client, battleshipGamesManager, this);
 	}
 
 	public void receiveBattleshipGame(BattleshipGame battleshipGame) {
 		switch (battleshipGame.getGameStatus()) {
 		case BattleshipGame.GAME_PROPOSAL:
-			receiveGameProposal(battleshipGame);
+			processingIncomingBattleshipGameMessage.receiveGameProposal(battleshipGame);
 			break;
 		case BattleshipGame.REJECTION_GAME_PROPOSAL:
-			receiveRejectionGameProposal(battleshipGame);
+			processingIncomingBattleshipGameMessage.receiveRejectionGameProposal(battleshipGame);
 			break;
 		case BattleshipGame.ADD_SHIPS:
-			receiveAddShips(battleshipGame);
+			processingIncomingBattleshipGameMessage.receiveAddShips(battleshipGame);
 			break;
 		case BattleshipGame.PLAY_THE_GAME:
-			receivePlayTheGame(battleshipGame);
+			processingIncomingBattleshipGameMessage.receivePlayTheGame(battleshipGame);
 			break;
 		case BattleshipGame.END_GAME:
-			receiveEndGame(battleshipGame);
+			processingIncomingBattleshipGameMessage.receiveEndGame(battleshipGame);
 			break;
-		}
-	}
-
-	private void receiveEndGame(BattleshipGame battleshipGame) {
-		updateBorder(battleshipGame);
-		battleshipGamesManager.updateBattleshipGame(battleshipGame);
-		battleshipGamesManager.getBorderManagement(battleshipGame).setBordersToEndGame();
-		BattleshipView battleshipView = battleshipGamesManager.getBattleshipView(battleshipGame);
-		battleshipView.showEndGameInformationAndAcceptanceWindow("Wygrywa gracz: " + battleshipGame.getWinnerNick());
-	}
-
-	private void receiveGameProposal(BattleshipGame battleshipGame) {
-		String opponentPlayerNick = battleshipGame.getOpponentPlayerNick();
-		if (checkIfTheGameNotExist(battleshipGame)) {
-			deleteBattleshipGameIfExsistInformationController(opponentPlayerNick);
-			BattleshipView battleshipView = new BattleshipView(opponentPlayerNick, client, this);
-			battleshipGamesManager.addBattleshipGame(battleshipGame, battleshipView);
-			battleshipView.showAcceptanceWindow();
-		} else {
-			client.sendRejectionGameProspalWhenBattleshipGameNotDelete(battleshipGame);
-		}
-	}
-
-	private boolean checkIfTheGameNotExist(BattleshipGame battleshipGame) {
-		return battleshipGamesManager.getBattleshipGame(battleshipGame) == null;
-	}
-
-	private void deleteBattleshipGameIfExsistInformationController(String opponentPlayerNick) {
-		if (battleshipGamesManager.checkIfExist(opponentPlayerNick)) {
-			BattleshipView battleshipView = battleshipGamesManager.getBattleshipView(opponentPlayerNick);
-			battleshipView.closeInformationAndAcceptanceWindow();
-			battleshipGamesManager.deleteBattleshipGame(opponentPlayerNick);
-		}
-	}
-
-	private void receiveRejectionGameProposal(BattleshipGame battleshipGame) {
-		BattleshipView battleshipView = battleshipGamesManager.getBattleshipView(battleshipGame);
-		battleshipView.closeWaitingWindow();
-		battleshipView.showInformationAndAcceptanceWindow(
-				"Użytkownik " + battleshipGame.getOpponentPlayerNick() + " nie zaakceptował gry");
-	}
-
-	private void receiveAddShips(BattleshipGame battleshipGame) {
-		BattleshipView battleshipView = battleshipGamesManager.getBattleshipView(battleshipGame);
-		battleshipGamesManager.updateBattleshipGame(battleshipGame);
-		if (battleshipView.getWaitingWindowController() != null) {
-			battleshipView.closeWaitingWindow();
-		}
-		updateAddShips(battleshipGame);
-		battleshipView.showBattleshipWindow();
-		Platform.runLater(() -> {
-			battleshipGamesManager.getBorderManagement(battleshipGame).startNewGameWithVirtualPlayer();
-		});
-	}
-
-	private void updateAddShips(BattleshipGame battleshipGame) {
-		AddShips addShips = battleshipGamesManager.getAddShip(battleshipGame);
-		addShips.addOneRealPlayer(battleshipGame.getPlayer());
-	}
-
-	private void receivePlayTheGame(BattleshipGame battleshipGame) {
-		updateBorder(battleshipGame);
-		battleshipGamesManager.updateBattleshipGame(battleshipGame);
-		if (battleshipGame.getNickWhoseTourn().equals(nick)) {
-			battleshipGamesManager.getBorderManagement(battleshipGame).setBordersToStartShot();
-		}
-	}
-
-	private void updateBorder(BattleshipGame battleshipGame) {
-		BorderManagement b = battleshipGamesManager.getBorderManagement(battleshipGame);
-		if (battleshipGame.getPlayer() != null) {
-			Platform.runLater(() -> {
-				b.drawBoardInMyBorder(battleshipGame.getPlayer());
-				b.drawOpponentBoardInOpponentBorder(battleshipGame.getPlayer());
-			});
 		}
 	}
 
@@ -187,7 +112,7 @@ public class BattleshipManagement {
 	}
 
 	public void setNick(String nick) {
-		this.nick = nick;
+		processingIncomingBattleshipGameMessage.setNick(nick);
 	}
 
 	public boolean checkIfTheButtonWasUsed(String opponentPlayerNick, ActionEvent event) {
